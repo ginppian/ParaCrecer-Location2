@@ -9,7 +9,7 @@ Esta es una mejora de la versión <a href="https://github.com/ginppian/ParaCrece
 
 ## Código
 
-````javascript
+```javascript
 // Variable global de mapa
 var map;
 
