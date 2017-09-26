@@ -181,6 +181,132 @@ function initMap(){
 }
 ```
 
+* New Version
+
+```
+var map;
+$(document).ready(function(){
+    window.setInterval(getAndDraw, 3000);
+});
+
+var url = "http://104.236.130.10:8082/api/positions";
+var user = "admin";
+var pass = "password";
+var usuarios = {};
+var arrayUsrs = new Array();
+var markers = new Array();
+
+
+function getAndDraw(){
+
+    $.when(
+
+        $.ajax({
+            type: "GET", 
+            url: url,
+            async: false,
+            dataType: "json",
+            headers: {
+              "Authorization": "Basic " + btoa(user + ":" + pass),
+              'Accept':'application/json',
+              'Content-Type':'application/json',
+            },
+            success: function (data){
+              console.log(data); 
+              usuarios = data;
+            },
+        })
+
+        ).then(function( usuarios, textStatus, jqXHR ) {
+
+        console.log('usuarios'+usuarios);
+        console.log('textStatus'+textStatus);
+        console.log('jqXHR'+jqXHR);
+        console.log('jqXHR.status'+jqXHR.status);
+
+        // Limpiamos
+        var usr = {};
+        deleteMarkers();
+
+        // Deserealizar data
+        $.each( usuarios, function( key, val ) {
+
+          //console.log("key: "+key+" lat: "+data[key].lat+" lon: "+data[key].lon);
+          usr.deviceId = key;
+          console.log(usr.deviceId);
+
+          usr.latitude = usuarios[key].latitude;
+          console.log(usr.latitude);
+
+          usr.longitude = usuarios[key].longitude;
+          console.log(usr.longitude);
+
+          arrayUsrs.push(usr);
+        });
+
+        updateMapa(arrayUsrs);
+
+        // Limpiamos
+        arrayUsrs = [];
+    });
+
+
+}
+
+function setMapOnAll(map) {
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(null);
+    }
+}
+
+function clearMarkers() {
+    setMapOnAll(null);
+}
+
+function deleteMarkers() {
+    clearMarkers();
+    markers = [];
+}
+
+async function updateMapa(usrsArray){
+    console.log('updateMapa');
+
+    var bounds = new google.maps.LatLngBounds();
+
+    for( var i = 0; i < usrsArray.length; i++ ) {
+        console.log(usrsArray[i].latitude);
+        console.log(usrsArray[i].longitude);
+        console.log(usrsArray[i].deviceId);
+
+        var position = new google.maps.LatLng(usrsArray[i].latitude, usrsArray[i].longitude);
+        bounds.extend(position);
+        markers[i] = new google.maps.Marker({
+            position: position,
+            map: map,
+            //title: usrsArray[i].deviceId
+        });
+        map.fitBounds(bounds);
+    }
+}
+
+function initMap(){
+
+    var uluru = {lat: 15.3000, lng: 101.044};
+        map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 1,
+        center: uluru
+    });
+
+    var marker = new google.maps.Marker({
+        position: uluru,
+        map: map
+    });
+
+}
+```
+
+
+
 ## Fuente
 
 * <a href="https://www.w3schools.com/jsref/jsref_split.asp">JavaScript String split() Method</a>
